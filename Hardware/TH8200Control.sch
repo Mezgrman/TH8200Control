@@ -6,8 +6,8 @@ $Descr A3 16535 11693
 encoding utf-8
 Sheet 1 1
 Title "Control board for Siemens TH8200 hand dryer"
-Date "2020-07-22"
-Rev "1.0"
+Date "2020-07-29"
+Rev "1.1"
 Comp "xatLabs"
 Comment1 "Julian Metzler"
 Comment2 ""
@@ -83,7 +83,7 @@ F 1 "100µ/35V/E" H 4383 1645 50  0000 R CNN
 F 2 "Capacitors_SMD:CP_Elec_6.3x7.7" H 4538 1450 50  0001 C CNN
 F 3 "~" H 4500 1600 50  0001 C CNN
 	1    4500 1600
-	1    0    0    1   
+	1    0    0    -1  
 $EndComp
 Wire Wire Line
 	4500 1350 3950 1350

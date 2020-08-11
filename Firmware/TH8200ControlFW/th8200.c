@@ -86,6 +86,8 @@ void th8200_init(void) {
 }
 
 void th8200_loop(void) {
+	uint8_t stayOn = 0;
+	
 	if(th8200_getIRState()) {
 		// IR sensor has triggered, start a drying cycle
 		
@@ -93,18 +95,32 @@ void th8200_loop(void) {
 		for(uint16_t i = 0; i < FAN_TURN_ON_TIME; i++) {
 			th8200_setFanLevel(mapRange(i, 0, FAN_TURN_ON_TIME, FAN_MIN_LEVEL, FAN_ON_LEVEL));
 			_delay_us(1000);
+			
+			// Make sure rolling average gets updated
+			th8200_getIRState();
 		}
+		
+		// Check if hand is still present
+		if(th8200_getIRState()) stayOn = 1;
 		
 		// Enable heater after given delay
 		_delay_ms(HEATER_ON_DELAY);
 		th8200_setHeater(1);
 		
-		// Wait for dry time to pass, retrigger if necessary
-		uint16_t onTime = 0;
-		while(onTime < DRY_TIME) {
-			if(th8200_getIRState()) onTime = 0;
-			onTime++;
-			_delay_us(1000);
+		if(stayOn) {
+			// Wait for hand to be gone
+			while(th8200_getIRState());
+			
+			// Wait for another hand pulse
+			while(!th8200_getIRState());
+		} else {
+			// Wait for dry time to pass, retrigger if necessary
+			uint16_t onTime = 0;
+			while(onTime < DRY_TIME) {
+				if(th8200_getIRState()) onTime = 0;
+				onTime++;
+				_delay_us(1000);
+			}
 		}
 		
 		// Disable heater given delay before fan
@@ -115,6 +131,9 @@ void th8200_loop(void) {
 		for(uint16_t i = 0; i < FAN_TURN_OFF_TIME; i++) {
 			th8200_setFanLevel(mapRange(i, 0, FAN_TURN_OFF_TIME, FAN_ON_LEVEL, FAN_MIN_LEVEL));
 			_delay_us(1000);
+			
+			// Make sure rolling average gets updated
+			th8200_getIRState();
 		}
 		
 		// Turn off fan
